@@ -3,12 +3,12 @@ on:
   workflow_dispatch:
 jobs:
   publish:
-    if: github.repository == 'sgl-project/sglang'
+    if: github.repository == 'choronz/sglang'
     runs-on: ubuntu-latest
     environment: 'prod'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       - name: Get version
         id: get_version
@@ -17,7 +17,7 @@ jobs:
           echo "TAG=v$version" >> $GITHUB_OUTPUT
 
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
         with:

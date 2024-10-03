@@ -51,10 +51,10 @@ jobs:
             exit 1
           fi
 
-          docker build . -f docker/Dockerfile --build-arg CUDA_VERSION=${{ matrix.cuda_version }} --build-arg BUILD_TYPE=${{ matrix.build_type }} -t lmsysorg/sglang:${tag}${tag_suffix} --no-cache
-          docker push lmsysorg/sglang:${tag}${tag_suffix}
+          docker build . -f docker/Dockerfile --build-arg CUDA_VERSION=${{ matrix.cuda_version }} --build-arg BUILD_TYPE=${{ matrix.build_type }} -t choronz/sglang:${tag}${tag_suffix} --no-cache
+          docker push choronz/sglang:${tag}${tag_suffix}
 
           if [ "${{ matrix.cuda_version }}" = "12.4.1" ]; then
-            docker tag choronz/sglang:${tag}${tag_suffix} lmsysorg/sglang:latest${tag_suffix}
+            docker tag choronz/sglang:${tag}${tag_suffix} choronz/sglang:latest${tag_suffix}
             docker push choronz/sglang:latest${tag_suffix}
           fi

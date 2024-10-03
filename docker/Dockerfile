@@ -16,7 +16,7 @@ RUN echo 'tzdata tzdata/Areas select America' | debconf-set-selections \
     && update-alternatives --set python3 /usr/bin/python${PYTHON_VERSION} \
     && ln -sf /usr/bin/python${PYTHON_VERSION}-config /usr/bin/python3-config \
     && curl -sS https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VERSION} \
-    && python3 --version && python3 -m pip --version
+    && python3 --version && python3 -m pip --version \
     && rm -rf /var/lib/apt/lists/* && apt clean
     
 # RUN echo 'tzdata tzdata/Areas select America' | debconf-set-selections \

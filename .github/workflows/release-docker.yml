@@ -49,7 +49,7 @@ jobs:
           push: true
           build-args: CUDA_VERSION=${{ matrix.cuda_version }}
           tags: cuda-${{matrix.compute_capability}}-latest
-          file: /docker/Dockerfile
+          file: ./docker/Dockerfile
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platform: platform=linux/amd64

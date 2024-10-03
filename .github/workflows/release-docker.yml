@@ -50,7 +50,7 @@ jobs:
           build-args: CUDA_VERSION=${{ matrix.cuda_version }}
           tags: cuda-${{matrix.compute_capability}}-latest
           file: ./docker/Dockerfile
-          platform: platform=linux/amd64
+          platforms: platform=linux/amd64
           # cache-from: type=gha
           # cache-to: type=gha,mode=max
           

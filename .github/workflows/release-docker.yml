@@ -53,7 +53,6 @@ jobs:
           platform: platform=linux/amd64
           # cache-from: type=gha
           # cache-to: type=gha,mode=max
-          #,BUILD_TYPE=${{ matrix.build_type }}
           
       # - name: Build and Push
       #   run: |

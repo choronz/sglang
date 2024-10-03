@@ -4,13 +4,12 @@ ARG BUILD_TYPE=all
 ARG PYTHON_VERSION=3.12
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install Python and other dependencies
+# Install Python and other dependencies   libibverbs-dev python3.12-distutils -y
 RUN echo 'tzdata tzdata/Areas select America' | debconf-set-selections \
     && echo 'tzdata tzdata/Zones/America select Los_Angeles' | debconf-set-selections \
     && apt-get update -y \
-    && apt-get install -y ccache software-properties-common git curl sudo libibverbs-dev \
-    && add-apt-repository ppa:deadsnakes/ppa \
-    && apt-get update -y \
+    && apt-get install -y ccache software-properties-common git curl sudo  \
+    && add-apt-repository ppa:deadsnakes/ppa && apt-get update -y \
     && apt-get install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-dev \
     && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VERSION} 1 \
     && update-alternatives --set python3 /usr/bin/python${PYTHON_VERSION} \
@@ -18,20 +17,6 @@ RUN echo 'tzdata tzdata/Areas select America' | debconf-set-selections \
     && curl -sS https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VERSION} \
     && python3 --version && python3 -m pip --version \
     && rm -rf /var/lib/apt/lists/* && apt clean
-    
-# RUN echo 'tzdata tzdata/Areas select America' | debconf-set-selections \
-#     && echo 'tzdata tzdata/Zones/America select Los_Angeles' | debconf-set-selections \
-#     && apt update -y \
-#     && apt install software-properties-common -y \
-#     && add-apt-repository ppa:deadsnakes/ppa -y && apt update \
-#     && apt install python3.12 python3.12-dev -y \
-#     && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1 && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 2 \
-#     && update-alternatives --set python3 /usr/bin/python3.12 && apt install python3.12-distutils -y \
-#     && apt install curl git sudo libibverbs-dev -y \
-#     && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3 get-pip.py \
-#     && python3 --version && python3 -m pip --version \
-#     && rm -rf /var/lib/apt/lists/* \
-#     && apt clean
 
 # For openbmb/MiniCPM models
 RUN pip3 install datamodel_code_generator

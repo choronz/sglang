@@ -59,7 +59,6 @@ class SamplingBatchInfo:
                 [r.sampling_params.min_p for r in reqs], dtype=torch.float
             )
 
-        ret.regex_fsms = [r.regex_fsm for r in reqs]
         # TODO (lianmin): `need_min_p_sampling` needs to be updated in filter and merge.
         ret.need_min_p_sampling = any(r.sampling_params.min_p > 0 for r in reqs)
 
@@ -110,12 +109,14 @@ class SamplingBatchInfo:
                     self.linear_penalties = penalizer.apply(self.linear_penalties)
 
     def update_regex_vocab_mask(self):
+        has_regex = self.regex_fsms and any(regex_fsm for regex_fsm in self.regex_fsms)
+
         # Reset the vocab mask
         self.vocab_mask = None
 
-        if any(regex_fsm is not None for regex_fsm in self.regex_fsms):
+        if has_regex:
             self.vocab_mask = torch.zeros(
-                len(self.regex_fsms), self.vocab_size, dtype=torch.bool, device="cuda"
+                len(self.temperatures), self.vocab_size, dtype=torch.bool, device="cuda"
             )
             for i, regex_fsm in enumerate(self.regex_fsms):
                 if regex_fsm is not None:
@@ -137,8 +138,6 @@ class SamplingBatchInfo:
             value = getattr(self, item, None)
             if value is not None:  # logit_bias can be None
                 setattr(self, item, value[new_indices])
-
-        self.regex_fsms = [self.regex_fsms[i] for i in new_indices]
 
     @staticmethod
     def merge_bias_tensor(
@@ -176,5 +175,3 @@ class SamplingBatchInfo:
         self.logit_bias = SamplingBatchInfo.merge_bias_tensor(
             self.logit_bias, other.logit_bias, len(self), len(other)
         )
-
-        self.regex_fsms.extend(other.regex_fsms)

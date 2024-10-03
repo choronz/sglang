@@ -39,7 +39,8 @@ from vllm.model_executor.models import ModelRegistry
 
 from sglang.srt.configs.model_config import AttentionArch, ModelConfig
 from sglang.srt.constrained import disable_cache
-from sglang.srt.layers.attention_backend import FlashInferAttnBackend, TritonAttnBackend
+from sglang.srt.layers.attention.flashinfer_backend import FlashInferAttnBackend
+from sglang.srt.layers.attention.triton_backend import TritonAttnBackend
 from sglang.srt.layers.logits_processor import LogitsProcessorOutput
 from sglang.srt.layers.sampler import Sampler
 from sglang.srt.lora.lora_manager import LoRAManager
@@ -230,6 +231,7 @@ class ModelRunner:
             if hasattr(self.model, "get_attention_sliding_window_size")
             else None
         )
+        self.has_cross_attention = getattr(self.model, "has_cross_attention", False)
         self.is_generation = is_generation_model(
             self.model_config.hf_config.architectures, self.server_args.is_embedding
         )
@@ -407,8 +409,11 @@ class ModelRunner:
                 4096,
             )
 
+        device = "cuda"
         self.req_to_token_pool = ReqToTokenPool(
-            max_num_reqs + 1, self.model_config.context_len + 4, device="cuda"
+            max_num_reqs + 1,
+            self.model_config.context_len + 4,
+            device=device,
         )
         if (
             self.model_config.attention_arch == AttentionArch.MLA
@@ -420,6 +425,7 @@ class ModelRunner:
                 kv_lora_rank=self.model_config.kv_lora_rank,
                 qk_rope_head_dim=self.model_config.qk_rope_head_dim,
                 layer_num=self.model_config.num_hidden_layers,
+                device=device,
             )
         else:
             self.token_to_kv_pool = MHATokenToKVPool(
@@ -428,6 +434,7 @@ class ModelRunner:
                 head_num=self.model_config.get_num_kv_heads(self.tp_size),
                 head_dim=self.model_config.head_dim,
                 layer_num=self.model_config.num_hidden_layers,
+                device=device,
             )
         logger.info(
             f"Memory pool end. "
@@ -450,6 +457,10 @@ class ModelRunner:
         elif self.server_args.attention_backend == "triton":
             assert self.sliding_window_size is None, (
                 "Window attention is not supported in the triton attention backend. "
+                "Please use `--attention-backend flashinfer`."
+            )
+            assert not self.has_cross_attention, (
+                "Cross attention is not supported in the triton attention backend. "
                 "Please use `--attention-backend flashinfer`."
             )
             self.attn_backend = TritonAttnBackend(self)

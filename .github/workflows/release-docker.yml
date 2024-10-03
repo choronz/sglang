@@ -11,7 +11,7 @@ jobs:
   publish:
     if: github.repository == 'choronz/sglang'
     runs-on: ubuntu-latest
-    environment: 'prod'
+    environment: 'Prod'
     strategy:
       matrix:
         cuda_version: ['12.4.1']
@@ -49,6 +49,9 @@ jobs:
           push: true
           build-args: CUDA_VERSION=${{ matrix.cuda_version }}
           tags: cuda-${{matrix.compute_capability}}-latest
+          file: /docker/Dockerfile
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           platform: platform=linux/amd64
           #,BUILD_TYPE=${{ matrix.build_type }}
           

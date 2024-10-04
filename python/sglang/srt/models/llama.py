@@ -319,6 +319,7 @@ class LlamaForCausalLM(nn.Module):
         )
 
     def get_hidden_dim(self, module_name):
+        # return input_dim, output_dim
         if module_name in ["q_proj", "o_proj", "qkv_proj"]:
             return self.config.hidden_size, self.config.hidden_size
         elif module_name in ["kv_proj"]:
@@ -398,6 +399,9 @@ class LlamaForCausalLM(nn.Module):
             else:
                 # Skip loading extra bias for GPTQ models.
                 if name.endswith(".bias") and name not in params_dict:
+                    continue
+                # Skip loading kv_scale from ckpts towards new design.
+                if name.endswith(".kv_scale") and name not in params_dict:
                     continue
                 param = params_dict[name]
                 weight_loader = getattr(param, "weight_loader", default_weight_loader)

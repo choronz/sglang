@@ -8,9 +8,6 @@ services:
       # - ${HOME}/.cache/modelscope:/root/.cache/modelscope
     restart: always
     network_mode: host
-    # Or you can only publish port 30000
-    # ports:
-    #   - 30000:30000
     environment:
       HF_TOKEN: <secret>
       # if you use modelscope to download model, you need set this environment
@@ -19,13 +16,23 @@ services:
     command:
       --model-path meta-llama/Llama-3.1-8B-Instruct
       --host 0.0.0.0
-      --port 30000
+      --context-length 4096
+      --mem-fraction-static 0.8 
+      --chunked-prefill-size 512 
+      --max-prefill-tokens 4096
+      --trust-remote-code
+      --port 80
     ulimits:
       memlock: -1
       stack: 67108864
     ipc: host
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:30000/health || exit 1"]
+      # test: curl --fail http://localhost/health || exit 1
+      interval: 1800s
+      retries: 3
+      start_period: 360s
+      timeout: 10s
     deploy:
       resources:
         reservations:
